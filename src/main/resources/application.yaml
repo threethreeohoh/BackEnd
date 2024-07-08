@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: rainfall
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/rainfall # local DB ??? ??
+    username: root
+    password: seolseee4512! # ?? ????
+  jpa: # JPA ??
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        ddl-auto: update
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+  data:
+    redis:
+      host: localhost
+      port: 6379 # redis? ?? ????
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: b224d071ef02936a6012285e990306ff
+            client-secret: DzB9uvE3eO7SXLKpo0NyR58lJcU40vRe
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            client-authentication-method: POST
+            client-name: Kakao
+            scope:
+              - profile_nickname
+              - profile_image
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+spring doc: # Swagger ??
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+  api-docs:
+    groups:
+      enabled: true
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+server:
+  port: 8081
