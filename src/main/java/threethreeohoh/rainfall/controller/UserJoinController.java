@@ -1,14 +1,12 @@
 package threethreeohoh.rainfall.controller;
 
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import threethreeohoh.rainfall.dto.UserJoinDTO;
 import threethreeohoh.rainfall.service.UserJoinService;
 
-@Controller
-@ResponseBody
+@RestController
 public class UserJoinController {
 
     private final UserJoinService userJoinService;
