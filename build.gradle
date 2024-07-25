@@ -25,12 +25,23 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Boot Starter Security 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis' // redis 설정
+	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring security : Spring Boot Starter Security 의존성 추가 (스프링 시큐리티를 사용하기 위한 스타터)
 	implementation 'org.springframework.security:spring-security-oauth2-client' // Spring Security OAuth2 클라이언트 의존성을 추가
     implementation 'org.springframework.security:spring-security-oauth2-jose' // Spring Security OAuth2 클라이언트 의존성을 추가
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6' // Spring security : 타임리프에서 스프링 시큐리티를 사용하기 위한 의존성
+
+	// Spring Security Config (for custom security configurations)
+	implementation 'org.springframework.security:spring-security-config'
+	// Spring Security Web (for web security configurations)
+	implementation 'org.springframework.security:spring-security-web'
+
+	// JWT (JSON Web Token) - JWT를 생성하고 검증하는 데 필요한 라이브러리입니다. 최신버전인 0.12.3 버전 사용 (보통 0.11.5 버전 사용)
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // for JSON processing with Jackson
 
     runtimeOnly 'com.mysql:mysql-connector-j' // MySQL
 
@@ -38,7 +49,7 @@ dependencies {
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.security:spring-security-test' // Spring security : 스프링 시큐리티를 테스트하기 위한 의존성
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
