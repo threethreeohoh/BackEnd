@@ -52,7 +52,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 프론트엔드의 3000번대 포트 허용
+                        configuration.setAllowedOrigins(Collections.singletonList("*")); // 프론트엔드의 3000번대 포트 허용
                         configuration.setAllowedMethods(Collections.singletonList("*")); // 허용할 메서드 (GET, POST, PUT 등등) : 전부 허용
                         configuration.setAllowCredentials(true); //
                         configuration.setAllowedHeaders(Collections.singletonList("*")); // 허용할 헤더
@@ -65,7 +65,7 @@ public class SecurityConfig {
                 }));
 
         httpSecurity
-                .csrf(AbstractHttpConfigurer::disable) ;// CSRF 보호 기능을 비활성화, csrf(Cross site Request forgery) : 공격자가 인증된 브라우저에 저장된 쿠키의 세션 정보를 활용하여 웹 서버에 사용자가 의도하지 않은 요청을 전달하는 것.(즉, 정상적인 사용자가 의도치 않은 위조요청을 보내는 것을 의미)
+                .csrf(AbstractHttpConfigurer::disable);// CSRF 보호 기능을 비활성화, csrf(Cross site Request forgery) : 공격자가 인증된 브라우저에 저장된 쿠키의 세션 정보를 활용하여 웹 서버에 사용자가 의도하지 않은 요청을 전달하는 것.(즉, 정상적인 사용자가 의도치 않은 위조요청을 보내는 것을 의미)
         //  REST API이므로 basic auth 및 csrf 보안을 사용하지 않음 (저는 REST API를 이용한 개발을 진행 할 예정입니다.Rest Api 환경에서는 Session 기반 인증과 다르기 때문에 서버에 인증정보를 보관하지 않고, 권한 요청시 필요한 인증정보(OAuth2, Jwt토큰 등)요청을 포함하기 때문에 굳이 불필요한 csrf 보안을 활성화할 필요가 없습니다.)
         // 따라서 csrf는 disable 처리 하였습니다.
         httpSecurity
