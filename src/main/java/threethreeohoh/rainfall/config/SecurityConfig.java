@@ -57,7 +57,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("*")); // 프론트엔드의 3000번대 포트 허용
+                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 프론트엔드의 3000번대 포트 허용
                         configuration.setAllowedMethods(Collections.singletonList("*")); // 허용할 메서드 (GET, POST, PUT 등등) : 전부 허용
                         configuration.setAllowCredentials(true); //
                         configuration.setAllowedHeaders(Collections.singletonList("*")); // 허용할 헤더

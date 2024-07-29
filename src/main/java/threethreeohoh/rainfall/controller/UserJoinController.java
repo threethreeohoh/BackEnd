@@ -8,7 +8,7 @@ import threethreeohoh.rainfall.dto.UserJoinDTO;
 import threethreeohoh.rainfall.service.UserJoinService;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class UserJoinController {
 
     private final UserJoinService userJoinService;
