@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class MainController {
 
     @GetMapping("/")
@@ -28,6 +28,6 @@ public class MainController {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        return "Main Controller : " + username + role;
+        return "This is Main Controller and your username is : " + username + " and your current role is : " + role;
     }
 }
