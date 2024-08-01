@@ -12,12 +12,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import threethreeohoh.rainfall.jwt.JWTFilter;
 import threethreeohoh.rainfall.jwt.JWTUtil;
 import threethreeohoh.rainfall.jwt.LoginFilter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -26,7 +28,6 @@ import java.util.Collections;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-
     private final JWTUtil jwtUtil;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
@@ -48,26 +49,9 @@ public class SecurityConfig {
         httpSecurity // csrf(Cross site Request forgery) : 공격자가 인증된 브라우저에 저장된 쿠키의 세션 정보를 활용하여 웹 서버에 사용자가 의도하지 않은 요청을 전달하는 것.(즉, 정상적인 사용자가 의도치 않은 위조요청을 보내는 것을 의미)
                 .csrf(AbstractHttpConfigurer::disable); //  REST API이므로 basic auth 및 csrf 보안을 사용하지 않음. Rest Api 환경에서는 Session 기반 인증과 다르기 때문에 서버에 인증정보를 보관하지 않고, 권한 요청시 필요한 인증정보(OAuth2, Jwt토큰 등)요청을 포함하기 때문에 굳이 불필요한 csrf 보안을 활성화할 필요가 없습니다.) 따라서 csrf는 disable 처리 하였습니다.
 
-
         // 로그인 필터 관련 CORS 설정
         httpSecurity
-                .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
-
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 프론트엔드의 3000번대 포트 허용
-                        configuration.setAllowedMethods(Collections.singletonList("*")); // 허용할 메서드 (GET, POST, PUT 등등) : 전부 허용
-                        configuration.setAllowCredentials(true); //
-                        configuration.setAllowedHeaders(Collections.singletonList("*")); // 허용할 헤더
-                        configuration.setMaxAge(3600L); // 허용 가능 시간
-
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization")); // 서버에서 클라이언트로 헤더를 전송할때 Authorization에 jwt를 넣어서 보내줄 것이기 때문에 Authorization 헤더도 허용해줘야함
-
-                        return configuration;
-                    }
-                }));
+                .cors((cors) -> cors.configurationSource(corsConfigurationSource()));
 
         // HTTP Basic 인증을 비활성화
         httpSecurity
@@ -79,15 +63,19 @@ public class SecurityConfig {
 
         // 인가 작업
         httpSecurity
-                .authorizeHttpRequests((authorize) -> authorize // 특정 HTTP 요청에 대한 접근 권한을 설정 (인증, 인가가 필요한 URL 지정)
+                .authorizeHttpRequests(authorize -> authorize // 특정 HTTP 요청에 대한 접근 권한을 설정 (인증, 인가가 필요한 URL 지정)
                         .requestMatchers("/login", "/", "/join").permitAll() // 해당 API에 대해서는 모든 요청을 허가 (이 경로들은 누구나 접근할 수 있도록 허용)
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()); // 나머지의 모든 요청은 인증된 사용자만 접근 가능하도록 설정
 
         // 로그아웃 설정
         httpSecurity
-                .logout((logout) -> logout.logoutSuccessUrl("/login") // 로그아웃 설정 구성 , 로그아웃 성공 후 이동할 URL("/login")을 설정
-                        .invalidateHttpSession(true)); // 로그아웃 시 세션을 무효화 (로그아웃 이후 전체 세션 삭제 여부)
+                .logout((logout) -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+                        //.logoutSuccessUrl("/login") // 로그아웃 설정 구성 , 로그아웃 성공 후 이동할 URL("/login")을 설정
+                        .invalidateHttpSession(true) // 로그아웃 시 세션을 무효화 (로그아웃 이후 전체 세션 삭제 여부)
+                        .deleteCookies("JSESSIONID"));
         // 세션 관리 정책 설정 (Stateless)
         httpSecurity //*중요* JWT 방식에서는 항상 세션을 Stateless 방식으로 관리
                 .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer
@@ -97,7 +85,7 @@ public class SecurityConfig {
 
         // jwt 토큰을 검증하는 필터 등록
         httpSecurity
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // 로그인을 검증하는 필터 등록
         httpSecurity
@@ -105,6 +93,21 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() { // CORS 설정
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://3.35.231.194:8080", "http://43.200.165.138:3000", "http://localhost:3000"));
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+        return request -> configuration;
+    }
+
 
     @Bean // 이 메서드가 반환하는 'BCryptPasswordEncoder' 객체를 Spring 컨테이너가 관리하는 빈으로 등록
     public static BCryptPasswordEncoder bCryptPasswordEncoder() { // 스프링 시큐리티에서 제공하며 bcrypt 해싱 함수로 암호를 인코딩하는 BCryptPasswordEncoder를 직접 불러서 사용하였습니다.
